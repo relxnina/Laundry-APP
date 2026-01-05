@@ -69,7 +69,6 @@ src/
 ├─ components/
 ├─ styles/
 └─ utils/
-public/
 ```
 
 Tujuan Project
