@@ -7,7 +7,7 @@
 
 ---
 
-## 🇮🇩 Bahasa Indonesia
+## 🇮🇩 Indonesia
 
 **Laundry-APP** adalah aplikasi frontend berbasis **Next.js** yang dibuat sebagai bagian dari *Tugas Ujian Kompetensi Keahlian (UKK)*.  
 Aplikasi ini berfokus pada tampilan antarmuka (UI) sistem layanan laundry dengan struktur modern dan mudah dikembangkan.
@@ -36,8 +36,44 @@ Aplikasi ini berfokus pada tampilan antarmuka (UI) sistem layanan laundry dengan
 
 ### 🚀 Instalasi & Menjalankan Project
 
-Clone repository:
+Duplikat repository:
 
 ```bash
 git clone https://github.com/relxnina/Laundry-APP.git
 cd Laundry-APP
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Jalankan development server:
+
+```bash
+npm run dev
+```
+
+Akses di browser:
+
+```arduino
+http://localhost:3000
+```
+Struktur Folder
+
+```bash
+public/
+src/
+├─ app/
+├─ components/
+├─ styles/
+└─ utils/
+public/
+```
+
+Tujuan Project
+
+- ✅Project UKK / tugas akhir
+- ✅Melatih penggunaan Next.js dan TypeScript
+- ✅Dasar pengembangan aplikasi laundry berbasis web
