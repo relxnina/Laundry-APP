@@ -22,32 +22,6 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-gray-100 pb-8">
       <header className="bg-sky-400 text-white px-4 pt-6 pb-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm">{greeting} 👋</p>
-            <p className="font-bold text-lg">{user?.name ?? "Guest"}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center">
-              <img src="/images/icons/iconhome.svg" className="w-4 h-4" />
-            </button>
-
-            <button className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center">
-              <img src="/images/icons/iconnotif.svg" className="w-4 h-4" />
-            </button>
-
-            <button className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center">
-              <img src="/images/icons/iconhistory.svg" className="w-4 h-4" />
-            </button>
-
-            <button className="w-9 h-9 rounded-full bg-white overflow-hidden">
-              {user?.photo ? (
-                <img src={user.photo} className="w-full h-full object-cover" />
-              ) : null}
-            </button>
-          </div>
-        </div>
       </header>
 
       <section className="px-4 mt-6">

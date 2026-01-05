@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type OrderStatus =
   | "menunggu_antrian"
@@ -64,64 +65,73 @@ const statusLabel: Record<OrderStatus, string> = {
   menunggu_antrian: "Menunggu Antrian",
   dikerjakan: "Dikerjakan",
   selesai: "Selesai",
-  menunggu_pembayaran: "Waiting Payment",
+  menunggu_pembayaran: "Menunggu Pembayaran",
 };
 
 export default function HistoryPage() {
+  const router = useRouter();
   const [orders] = useState(dummyOrders);
+  const [greeting, setGreeting] = useState("");
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 11) setGreeting("Good Morning");
+    else if (hour < 15) setGreeting("Good Afternoon");
+    else if (hour < 18) setGreeting("Good Evening");
+    else setGreeting("Good Night");
+  }, []);
 
   return (
-    <div className="px-4 py-4 space-y-6">
-      <h1 className="text-lg font-semibold">History</h1>
+    <main className="min-h-screen bg-gray-100 pb-6">
 
-      {orders.map((order) => (
-        <div key={order.id}>
-          <p className="text-sm text-gray-500 mb-2">{order.date}</p>
+      <section className="px-4 mt-6 space-y-6">
+        <h1 className="text-lg font-semibold text-center">History</h1>
 
-          <div className="bg-white rounded-2xl shadow p-4 flex gap-4">
-            {/* Image */}
-            <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center">
-              <Image
-                src="/placeholder-shirt.png"
-                alt="Laundry Item"
-                width={80}
-                height={80}
-              />
-            </div>
+        {orders.map((order) => (
+          <div key={order.id}>
+            <p className="text-sm text-gray-500 mb-2">{order.date}</p>
 
-            {/* Info */}
-            <div className="flex-1 space-y-1 text-sm">
-              <p className="font-medium flex items-center gap-1">
-                👤 {order.customerName}
-              </p>
-              <p>⚖️ {order.weight} Kg</p>
-              <p>➕ {order.items.join(", ")}</p>
-              <p>📝 {order.notes}</p>
-              <p className="font-semibold">💰 Rp {order.price.toLocaleString()}</p>
+            <div className="bg-white rounded-2xl shadow p-4 flex gap-4">
+              <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center">
+                <Image
+                  src="/placeholder-shirt.png"
+                  alt="Laundry Item"
+                  width={80}
+                  height={80}
+                />
+              </div>
 
-              {/* Status */}
-              <span
-                className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${statusStyle[order.status]}`}
-              >
-                {statusLabel[order.status]}
-              </span>
+              <div className="flex-1 space-y-1 text-sm">
+                <p className="font-medium">👤 {order.customerName}</p>
+                <p>⚖️ {order.weight} Kg</p>
+                <p>➕ {order.items.join(", ")}</p>
+                <p>📝 {order.notes}</p>
+                <p className="font-semibold">
+                  💰 Rp {order.price.toLocaleString("id-ID")}
+                </p>
 
-              {/* Upload bukti pembayaran */}
-              {order.status === "menunggu_pembayaran" && (
-                <div className="mt-3 space-y-2">
-                  <input
-                    type="file"
-                    className="text-xs file:mr-3 file:px-3 file:py-1 file:rounded-full file:border-0 file:bg-gray-100 file:text-gray-700"
-                  />
-                  <button className="w-full bg-green-500 text-white py-2 rounded-xl text-sm font-medium">
-                    Kirim Bukti
-                  </button>
-                </div>
-              )}
+                <span
+                  className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${statusStyle[order.status]}`}
+                >
+                  {statusLabel[order.status]}
+                </span>
+
+                {order.status === "menunggu_pembayaran" && (
+                  <div className="mt-3 space-y-2">
+                    <input
+                      type="file"
+                      className="text-xs file:mr-3 file:px-3 file:py-1 file:rounded-full file:border-0 file:bg-gray-100 file:text-gray-700"
+                    />
+                    <button className="w-full bg-green-500 text-white py-2 rounded-xl text-sm font-medium">
+                      Kirim Bukti
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </section>
+    </main>
   );
 }

@@ -1,13 +1,4 @@
 import "./globals.css";
-import type { Metadata } from "next";
-// import { AuthProvider } from "firebase/auth";
-import { AuthProvider } from "@/context/AuthContext";
-//import AuthGuard from "@/components/AuthGuard";//
-
-export const metadata: Metadata = {
-  title: "Laundry App",
-  description: "Laundry management app",
-};
 
 export default function RootLayout({
   children,
@@ -15,9 +6,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="en">
+      <body className="bg-gray-100 antialiased">
+        {children}
       </body>
     </html>
   );
