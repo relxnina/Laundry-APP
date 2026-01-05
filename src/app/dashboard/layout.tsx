@@ -21,7 +21,7 @@ export default function DashboardLayout({
 
   return (
     <main className="min-h-screen bg-gray-100">
-      {/* NAVBAR */}
+
       <header className="bg-sky-400 text-white px-4 pt-6 pb-6">
         <div className="flex justify-between items-center">
           <div>
@@ -57,7 +57,6 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      {/* PAGE CONTENT */}
       {children}
     </main>
   );
