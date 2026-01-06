@@ -9,6 +9,9 @@ export default function OrderServicePage() {
   const params = useParams();
   const router = useRouter();
 
+  console.log("PARAMS:", params);
+  console.log("SERVICE RAW:", params.service);
+
   const serviceKey = params.service as ServiceType;
   const config = servicesConfig[serviceKey];
 

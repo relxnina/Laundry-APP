@@ -21,8 +21,6 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-gray-100 pb-8">
-      <header className="bg-sky-400 text-white px-4 pt-6 pb-8">
-      </header>
 
       <section className="px-4 mt-6">
         <div className="h-[140px] rounded-[18px] overflow-hidden shadow-md">
@@ -71,7 +69,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-4 w-[355px]">
 
           <button
-            onClick={() => router.push("/order/wash")}
+            onClick={() => router.push("/dashboard/order/wash")}
             className="w-[171px] h-[116px] bg-sky-300 rounded-[15px] p-4 flex flex-col justify-between"
           >
             <div className="flex items-center gap-2">
@@ -87,7 +85,7 @@ export default function DashboardPage() {
           </button>
 
           <button
-            onClick={() => router.push("/order/dryclean")}
+            onClick={() => router.push("/dashboard/order/dryclean")}
             className="w-[171px] h-[116px] bg-green-300 rounded-[15px] p-4 flex flex-col justify-between"
           >
             <div className="flex items-center gap-2">
@@ -103,7 +101,7 @@ export default function DashboardPage() {
           </button>
 
           <button
-            onClick={() => router.push("/order/duvets")}
+            onClick={() => router.push("/dashboard/order/duvets")}
             className="col-span-2 w-[355px] h-[116px] bg-purple-300 rounded-[15px] p-4 flex flex-col justify-between"
           >
             <div className="flex items-center gap-2">

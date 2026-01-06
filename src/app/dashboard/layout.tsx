@@ -21,7 +21,7 @@ export default function DashboardLayout({
 
   return (
     <main className="min-h-screen bg-gray-100">
-      {/* NAVBAR */}
+
       <header className="bg-sky-400 text-white px-4 pt-6 pb-6">
         <div className="flex justify-between items-center">
           <div>
@@ -50,14 +50,13 @@ export default function DashboardLayout({
               <img src="/images/icons/iconhistory.svg" className="w-4 h-4" />
             </button>
 
-            <button className="w-9 h-9 rounded-full bg-white overflow-hidden">
-              <div className="w-full h-full bg-gray-200" />
+            <button className="w-9 h-9 rounded-full bg-white overflow-hidden"
+              onClick={() => router.push("/dashboard/profile")}>
             </button>
           </div>
         </div>
       </header>
 
-      {/* PAGE CONTENT */}
       {children}
     </main>
   );
