@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { loginWithGoogle, logout } from "@/lib/auth";
+import { loginWithGoogle } from "@/lib/auth";
 
 export default function AccountPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
 
   if (loading) {
@@ -18,12 +18,12 @@ export default function AccountPage() {
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6">
-      {/* PROFILE CARD */}
+
       <section className="bg-white rounded-[18px] p-5 shadow-sm flex items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-          {user?.photoURL ? (
+          {user?.photo ? (
             <img
-              src={user.photoURL}
+              src={user.photo}
               alt="Profile"
               className="w-full h-full object-cover"
             />
@@ -34,7 +34,7 @@ export default function AccountPage() {
 
         <div>
           <p className="font-semibold text-base">
-            {user?.displayName ?? "Guest User"}
+            {user?.name ?? "Guest User"}
           </p>
           <p className="text-sm text-gray-500">
             {user?.email ?? "Anda belum login"}
@@ -42,7 +42,6 @@ export default function AccountPage() {
         </div>
       </section>
 
-      {/* MENU */}
       <section className="mt-6 bg-white rounded-[18px] shadow-sm divide-y">
         <button
           onClick={() => router.push("/dashboard/history")}

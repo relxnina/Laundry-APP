@@ -9,6 +9,8 @@ import {
 import { auth } from "@/lib/firebase";
 import { saveUser } from "@/lib/saveUser";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -100,6 +102,14 @@ export default function LoginPage() {
           <img src="/icons/google.svg" className="w-5 h-5" />
           Login with Google
         </button>
+
+        <p className="text-sm text-center mt-4">
+          Belum punya akun?{" "}
+          <Link href="/register" className="text-green-600 font-medium">
+            Register
+          </Link>
+        </p>
+
       </form>
     </main>
   );

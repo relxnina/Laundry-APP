@@ -1,20 +1,23 @@
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { User } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export async function saveUser(user: User) {
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
+export const saveUser = async (user: User) => {
+  if (!user || !user.uid) return;
 
-  if (!snap.exists()) return ;
-  
-  
-    await setDoc(ref, {
+  const userRef = doc(db, "users", user.uid);
+
+  await setDoc(
+    userRef,
+    {
       uid: user.uid,
-      name: user.displayName ?? "",
       email: user.email ?? "",
-      photo: user.photoURL ?? "",
+      name: user.displayName ?? user.email?.split("@")[0] ?? "User",
+      photoURL: user.photoURL ?? null,
       provider: user.providerData[0]?.providerId ?? "password",
-      createdAt: serverTimestamp()
-    });
-}
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+};
