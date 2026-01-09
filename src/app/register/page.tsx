@@ -47,8 +47,9 @@ export default function RegisterPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       await afterAuth();
-    } catch (err) {
-      setError("Register Google gagal");
+    } catch (err: any) {
+  console.error(err);
+  setError(err.code ?? "Register gagal");
     } finally {
       setLoading(false);
     }

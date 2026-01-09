@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { loginWithGoogle } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function AccountPage() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   if (loading) {
@@ -59,18 +60,13 @@ export default function AccountPage() {
           <span>›</span>
         </button>
 
-        {user ? (
-          <button
-            onClick={logout}
-            className="w-full px-5 py-4 text-sm text-red-500"
-          >
-            Logout
-          </button>
-        ) : (
+          {user ? (
+            <LogoutButton />
+            ) : (
+
           <button
             onClick={loginWithGoogle}
-            className="w-full px-5 py-4 text-sm text-sky-500"
-          >
+            className="w-full px-5 py-4 text-sm text-sky-500">
             Login / Register (Google)
           </button>
         )}

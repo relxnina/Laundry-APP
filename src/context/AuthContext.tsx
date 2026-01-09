@@ -26,20 +26,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+    try {
       if (!firebaseUser) {
         setAuthUser(null);
         setUser(null);
         setLoading(false);
         return;
       }
-
-      await saveUser(firebaseUser); // ensure exists
+    
+      await saveUser(firebaseUser);
+    
       const userData = await getUser(firebaseUser.uid);
-
+    
       setAuthUser(firebaseUser);
-      setUser(userData);
+      setUser(userData ?? null);
+    } catch (err) {
+      console.error("AuthContext error:", err);
+    
+      setAuthUser(firebaseUser);
+      setUser(null);
+    } finally {
       setLoading(false);
-    });
+    }
+  });
 
     return () => unsub();
   }, []);
