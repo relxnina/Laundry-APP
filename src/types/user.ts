@@ -4,4 +4,5 @@ export type UserProfile = {
   email: string;
   photo?: string | null;
   provider?: string;
+  role: "user" | "admin";
 };

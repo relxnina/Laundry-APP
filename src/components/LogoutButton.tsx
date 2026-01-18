@@ -8,7 +8,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/login");
+    router.replace("/dashboard");
   };
 
   return (
