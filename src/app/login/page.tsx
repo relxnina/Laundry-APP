@@ -6,6 +6,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "firebase/auth";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 import { auth } from "@/lib/firebase";
 import { saveUser } from "@/lib/saveUser";
 import { useRouter } from "next/navigation";
@@ -19,10 +21,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { user, loading: authLoading } = useAuth();
+
+useEffect(() => {
+  if (authLoading) return;
+  if (!user) return;
+
+  if (user.role === "admin") {
+    router.replace("/admin");
+  } else {
+    router.replace("/dashboard");
+  }
+}, [user, authLoading, router]);
+
   const afterLogin = async () => {
     if (!auth.currentUser) return;
     await saveUser(auth.currentUser);
-    router.replace("/dashboard");
   };
 
   const loginEmail = async (e: React.FormEvent) => {
