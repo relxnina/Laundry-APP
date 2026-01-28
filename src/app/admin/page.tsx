@@ -15,11 +15,15 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getAllOrders()
-      .then(setOrders)
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  const load = async () => {
+    const data = await getAllOrders();
+    setOrders(data as Order[]);
+    setLoading(false);
+  };
+
+  load();
+}, []);
 
   const total = orders.length;
   const antri = orders.filter(o => o.status === "Antri").length;

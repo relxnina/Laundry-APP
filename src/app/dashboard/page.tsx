@@ -2,14 +2,42 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+// import { UserOrder } from "@/lib/userOrders";
+import { getUserOrders, type UserOrder } from "@/lib/userOrders";
+
 
 export default function DashboardPage() {
   const router = useRouter();
 
   // nanti ganti dari AuthContext
-  const user: any = null;
+  const { authUser, loading } = useAuth();
+
+  const [orders, setOrders] = useState<UserOrder[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   const [greeting, setGreeting] = useState("");
+
+  useEffect(() => {
+  if (!authUser) {
+    setOrders([]);
+    return;
+  }
+
+  setLoadingOrders(true);
+
+  getUserOrders(authUser.uid)
+    .then((data: any[]) => {
+      setOrders(data);
+    })
+    .catch((err: unknown) => {
+      console.error("Gagal ambil history:", err);
+      setOrders([]);
+    })
+    .finally(() => {
+      setLoadingOrders(false);
+    });
+}, [authUser]);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -36,10 +64,14 @@ export default function DashboardPage() {
         <div className="w-[355px] h-[285px] bg-white rounded-[15px] shadow-sm p-4">
           <div className="flex justify-between items-center mb-3">
             <p className="font-semibold text-sm">History</p>
-            <button className="text-xs text-sky-500">View all</button>
+            <button
+              className="text-xs text-sky-500"
+              onClick={() => router.push("/dashboard/history")}>
+              View all
+            </button>
           </div>
 
-          {!user ? (
+          {!authUser ? (
             <div className="w-[325px] h-[191px] mx-auto flex flex-col items-center justify-center gap-4 text-sm">
               <p className="text-gray-500">Anda belum login</p>
               <div className="flex gap-3">
@@ -59,7 +91,40 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="w-[325px] h-[191px] mx-auto bg-sky-50 rounded-[18px] p-3">
-              {/* nanti isi dari firestore */}
+              {loadingOrders ? (
+                <p className="text-xs text-gray-500 text-center mt-16">
+                  Loading history...
+                </p>
+              ) : orders.length === 0 ? (
+                <p className="text-xs text-gray-500 text-center mt-16">
+                  Belum ada pesanan
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {orders.map(order => (
+                    <div
+                      key={order.id}
+                      className="bg-white rounded-xl p-3 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">
+                          {order.serviceName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {order.status}
+                        </p>
+                      </div>
+                  
+                      <span className="text-xs text-gray-400">
+                        {order.createdAt?.toDate
+                          ? order.createdAt.toDate().toLocaleDateString("id-ID")
+                          : ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
             </div>
           )}
         </div>
