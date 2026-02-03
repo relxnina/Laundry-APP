@@ -18,6 +18,8 @@ export default function DashboardPage() {
   const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
+  if (loading) return; // tunggu auth selesai
+
   if (!authUser) {
     setOrders([]);
     return;
@@ -26,17 +28,17 @@ export default function DashboardPage() {
   setLoadingOrders(true);
 
   getUserOrders(authUser.uid)
-    .then((data: any[]) => {
-      setOrders(data);
+    .then((data) => {
+      setOrders(data); // data sudah UserOrder[]
     })
-    .catch((err: unknown) => {
+    .catch((err) => {
       console.error("Gagal ambil history:", err);
       setOrders([]);
     })
     .finally(() => {
       setLoadingOrders(false);
     });
-}, [authUser]);
+}, [authUser, loading]);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -89,42 +91,54 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="w-[325px] h-[191px] mx-auto bg-sky-50 rounded-[18px] p-3">
-              {loadingOrders ? (
-                <p className="text-xs text-gray-500 text-center mt-16">
-                  Loading history...
-                </p>
-              ) : orders.length === 0 ? (
-                <p className="text-xs text-gray-500 text-center mt-16">
-                  Belum ada pesanan
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {orders.map(order => (
-                    <div
-                      key={order.id}
-                      className="bg-white rounded-xl p-3 flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {order.serviceName}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {order.status}
-                        </p>
-                      </div>
-                  
-                      <span className="text-xs text-gray-400">
-                        {order.createdAt?.toDate
-                          ? order.createdAt.toDate().toLocaleDateString("id-ID")
-                          : ""}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-            </div>
+            <div className="w-[325px] h-[191px] mx-auto bg-sky-50 rounded-[18px] p-2 overflow-y-auto">
+  {loadingOrders ? (
+    <p className="text-xs text-gray-500 text-center mt-16">
+      Loading history...
+    </p>
+  ) : orders.length === 0 ? (
+    <p className="text-xs text-gray-500 text-center mt-16">
+      Belum ada pesanan
+    </p>
+  ) : (
+    <div className="space-y-3">
+      {orders.map(order => (
+        <div
+          key={order.id}
+          className="bg-white rounded-xl p-3 flex gap-3 shadow-sm"
+        >
+          {/* IMAGE */}
+          <div className="w-20 h-20 rounded-lg border overflow-hidden flex-shrink-0">
+            <img
+              src="/images/service/kaos.png"
+              alt="service"
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* INFO */}
+          <div className="flex-1 text-xs space-y-1">
+            <p className="font-semibold text-sm">
+              👤 {order.name ?? "Customer"}
+            </p>
+
+            <p>🧺 {order.weight} Kg</p>
+
+            <p>➕ {order.weight} × Setrika</p>
+
+            <p className="font-medium text-green-600">
+              💸 Rp {order.totalPrice?.toLocaleString("id-ID")}
+            </p>
+
+            <span className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600">
+              ⏳ {order.status}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           )}
         </div>
       </section>

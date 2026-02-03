@@ -12,8 +12,18 @@ import { db } from "@/lib/firebase";
 export type UserOrder = {
   id: string;
   userId: string;
-  serviceName: string;
-  status: string;
+
+  name: string;
+  phone?: string;
+  address?: string;
+
+  service: string;
+  serviceLabel?: string;
+
+  weight: number;
+  totalPrice: number;
+
+  status: "pending" | "paid" | "process" | "done";
   createdAt: Timestamp;
 };
 
