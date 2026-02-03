@@ -5,21 +5,39 @@ import {
   where,
   orderBy,
   limit,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export async function getUserOrders(userId: string) {
+export type UserOrder = {
+  id: string;
+  userId: string;
+  serviceName: string;
+  status: string;
+  createdAt: Timestamp;
+};
+
+export async function getUserOrders(
+  userId: string
+): Promise<UserOrder[]> {
   console.log("QUERY USER ID:", userId);
 
-  const snap = await getDocs(collection(db, "orders"));
+  const q = query(
+    collection(db, "orders"),
+    where("userId", "==", userId),
+    orderBy("createdAt", "desc"),
+    limit(3)
+  );
+
+  const snap = await getDocs(q);
 
   console.log(
-    "ALL ORDERS:",
+    "USER ORDERS:",
     snap.docs.map(d => d.data())
   );
 
   return snap.docs.map(doc => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as Omit<UserOrder, "id">),
   }));
 }

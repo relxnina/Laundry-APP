@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 // import { UserOrder } from "@/lib/userOrders";
 import { getUserOrders, type UserOrder } from "@/lib/userOrders";
 
-
 export default function DashboardPage() {
   const router = useRouter();
 
