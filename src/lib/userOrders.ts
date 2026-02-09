@@ -5,49 +5,46 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
-export type UserOrder = {
-  id: string;
-  userId: string;
-
-  name: string;
-  phone?: string;
-  address?: string;
-
-  service: string;
-  serviceLabel?: string;
-
-  weight: number;
-  totalPrice: number;
-
-  status: "pending" | "paid" | "process" | "done";
-  createdAt: Timestamp;
-};
+import { Order } from "@/lib/order";
 
 export async function getUserOrders(
   userId: string
-): Promise<UserOrder[]> {
-  console.log("QUERY USER ID:", userId);
-
+): Promise<Order[]> {
   const q = query(
     collection(db, "orders"),
     where("userId", "==", userId),
     orderBy("createdAt", "desc"),
-    limit(3)
+    limit(10)
   );
 
   const snap = await getDocs(q);
 
-  console.log(
-    "USER ORDERS:",
-    snap.docs.map(d => d.data())
-  );
+  return snap.docs.map(doc => {
+    const raw = doc.data();
 
-  return snap.docs.map(doc => ({
-    id: doc.id,
-    ...(doc.data() as Omit<UserOrder, "id">),
-  }));
+    // 🔥 Mapping status lama ke sistem baru
+    let status: Order["status"];
+
+    switch (raw.status) {
+      case "pending":
+        status = "queued";
+        break;
+      case "process":
+        status = "processing";
+        break;
+      case "done":
+        status = "waiting_payment";
+        break;
+      default:
+        status = raw.status;
+    }
+
+    return {
+      id: doc.id,
+      ...raw,
+      status,
+    } as Order;
+  });
 }
