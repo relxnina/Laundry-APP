@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 // import { UserOrder } from "@/lib/userOrders";
-import { getUserOrders, type UserOrder } from "@/lib/userOrders";
+import { getUserOrders } from "@/lib/userOrders";
+import type { Order } from "@/lib/order";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -12,13 +13,13 @@ export default function DashboardPage() {
   // nanti ganti dari AuthContext
   const { authUser, loading } = useAuth();
 
-  const [orders, setOrders] = useState<UserOrder[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
-  if (loading) return; // tunggu auth selesai
+  if (loading) return;
 
   if (!authUser) {
     setOrders([]);
@@ -29,7 +30,7 @@ export default function DashboardPage() {
 
   getUserOrders(authUser.uid)
     .then((data) => {
-      setOrders(data); // data sudah UserOrder[]
+      setOrders(data);
     })
     .catch((err) => {
       console.error("Gagal ambil history:", err);

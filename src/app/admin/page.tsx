@@ -2,15 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getAllOrders } from "@/lib/adminOrders";
+import type { Order } from "@/lib/order";
 import { OrderStatusSelect } from "@/components/OrderStatusSelect";
-
-type Order = {
-  id: string;
-  userName?: string;
-  serviceName?: string;
-  status: string;
-  createdAt?: any;
-};
 
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -19,7 +12,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       const data = await getAllOrders();
-      setOrders(data as Order[]);
+      setOrders(data);
       setLoading(false);
     };
 
@@ -27,13 +20,21 @@ export default function AdminDashboard() {
   }, []);
 
   const total = orders.length;
-  const antri = orders.filter(o => o.status === "Antri").length;
-  const proses = orders.filter(o => o.status === "Dikerjakan").length;
-  const selesai = orders.filter(o => o.status === "Selesai").length;
+  const queued = orders.filter(o => o.status === "queued").length;
+  const processing = orders.filter(o => o.status === "processing").length;
+  const waitingPayment = orders.filter(o => o.status === "waiting_payment").length;
+  const paid = orders.filter(o => o.status === "paid").length;
+
+
+  const statusLabel: Record<string, string> = {
+    queued: "Antri",
+    processing: "Dikerjakan",
+    waiting_payment: "Menunggu Pembayaran",
+    paid: "Selesai",
+  };
 
   return (
     <main className="min-h-screen bg-gray-100 p-6">
-      {/* HEADER */}
       <header className="mb-8">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <p className="text-sm text-gray-500">
@@ -41,15 +42,14 @@ export default function AdminDashboard() {
         </p>
       </header>
 
-      {/* STAT */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <Stat title="Total Order" value={total} />
-        <Stat title="Antri" value={antri} accent="yellow" />
-        <Stat title="Diproses" value={proses} accent="blue" />
-        <Stat title="Selesai" value={selesai} accent="green" />
+        <Stat title="Queued" value={queued} accent="yellow" />
+        <Stat title="Processing" value={processing} accent="blue" />
+        <Stat title="Waiting Payment" value={waitingPayment} accent="gray" />
+        <Stat title="Paid" value={paid} accent="green" />
       </section>
 
-      {/* ORDER LIST */}
       <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b flex items-center justify-between">
           <h2 className="font-semibold">Daftar Order</h2>
@@ -71,14 +71,17 @@ export default function AdminDashboard() {
             {orders.map(order => (
               <div
                 key={order.id}
-                className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition cursor-pointer"
+                className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition"
               >
                 <div>
                   <p className="font-medium">
-                    {order.serviceName ?? "Service Laundry"}
+                    {order.serviceLabel ?? order.service}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {order.userName ?? "Customer"}
+                    {order.name ?? "Customer"}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {statusLabel[order.status]}
                   </p>
                 </div>
 
@@ -104,8 +107,6 @@ export default function AdminDashboard() {
   );
 }
 
-/* ===== COMPONENTS ===== */
-
 function Stat({
   title,
   value,
@@ -129,23 +130,5 @@ function Stat({
         {value}
       </p>
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    Antri: "bg-yellow-100 text-yellow-700",
-    Dikerjakan: "bg-blue-100 text-blue-700",
-    Selesai: "bg-green-100 text-green-700",
-  };
-
-  return (
-    <span
-      className={`px-4 py-1.5 rounded-full text-xs font-medium ${
-        map[status] ?? "bg-gray-100 text-gray-600"
-      }`}
-    >
-      {status}
-    </span>
   );
 }
