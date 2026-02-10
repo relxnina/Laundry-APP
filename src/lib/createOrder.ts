@@ -11,7 +11,7 @@ export async function createOrder(data: any) {
 
   return await addDoc(collection(db, "orders"), {
     ...data,
-    userId: user.uid,          // 🔥 INI KUNCINYA
+    userId: user.uid,
     status: "pending",
     createdAt: serverTimestamp(),
   });

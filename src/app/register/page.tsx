@@ -48,8 +48,10 @@ export default function RegisterPage() {
       await signInWithPopup(auth, provider);
       await afterAuth();
     } catch (err: any) {
-  console.error(err);
-  setError(err.code ?? "Register gagal");
+      console.log("FULL ERROR OBJECT:", err);
+      console.log("ERROR CODE:", err.code);
+      console.log("ERROR MESSAGE:", err.message);
+      setError(err.code || err.message);
     } finally {
       setLoading(false);
     }
