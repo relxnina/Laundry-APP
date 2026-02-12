@@ -25,7 +25,6 @@ export default function AdminDashboard() {
   const waitingPayment = orders.filter(o => o.status === "waiting_payment").length;
   const paid = orders.filter(o => o.status === "paid").length;
 
-
   const statusLabel: Record<string, string> = {
     queued: "Antri",
     processing: "Dikerjakan",
@@ -34,75 +33,84 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm text-gray-500">
-          Pantau dan kelola semua order laundry
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#0b0b12] text-white relative overflow-hidden p-8">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-500/10 blur-3xl pointer-events-none" />
 
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <Stat title="Total Order" value={total} />
-        <Stat title="Queued" value={queued} accent="yellow" />
-        <Stat title="Processing" value={processing} accent="blue" />
-        <Stat title="Waiting Payment" value={waitingPayment} accent="gray" />
-        <Stat title="Paid" value={paid} accent="green" />
-      </section>
+      <div className="relative z-10 max-w-7xl mx-auto">
 
-      <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b flex items-center justify-between">
-          <h2 className="font-semibold">Daftar Order</h2>
-          <span className="text-xs text-gray-500">
-            {orders.length} order
-          </span>
-        </div>
+        <header className="mb-12">
+          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+            Admin Dashboard
+          </h1>
+          <p className="text-gray-400 mt-2">
+            Pantau dan kelola semua order laundry
+          </p>
+        </header>
 
-        {loading ? (
-          <div className="p-6 text-sm text-gray-500">
-            Loading order...
+  <section className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12 p-6 rounded-3xl bg-[#151520] border border-white/10 shadow-[8px_8px_0px_#000000]">
+    <Stat title="Total Order" value={total} gradient="from-purple-500 to-pink-500" />
+    <Stat title="Queued" value={queued} gradient="from-yellow-400 to-orange-400" />
+    <Stat title="Processing" value={processing} gradient="from-blue-400 to-cyan-400" />
+    <Stat title="Waiting Payment" value={waitingPayment} gradient="from-indigo-400 to-purple-400" />
+    <Stat title="Paid" value={paid} gradient="from-green-400 to-emerald-400" />
+  </section>
+
+    <section className="bg-[#151520] rounded-3xl border border-white/10 overflow-hidden shadow-[8px_8px_0px_#000000]">
+  <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+    <h2 className="text-lg font-semibold text-white">Daftar Order</h2>
+    <span className="text-xs text-gray-400">
+      {orders.length} order
+    </span>
+  </div>
+
+    {loading ? (
+      <div className="p-8 text-gray-400 text-sm">
+        Loading order...
+      </div>
+    ) : orders.length === 0 ? (
+      <div className="p-8 text-gray-400 text-sm">
+        Belum ada order masuk 👀
+      </div>
+    ) : (
+      <div className="max-h-[65vh] overflow-y-auto divide-y divide-white/10">
+        {orders.map(order => (
+          <div
+            key={order.id}
+            className="px-6 py-5 flex justify-between items-center hover:bg-white/5 transition-all duration-200"
+          >
+            <div>
+              <p className="font-semibold text-white">
+                {order.serviceLabel ?? order.service}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                {order.name ?? "Customer"}
+              </p>
+
+              <span className="inline-block mt-2 text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300">
+                {statusLabel[order.status]}
+              </span>
+            </div>
+
+            <OrderStatusSelect
+              orderId={order.id}
+              currentStatus={order.status}
+              onUpdated={(newStatus) => {
+                setOrders(prev =>
+                  prev.map(o =>
+                    o.id === order.id
+                      ? { ...o, status: newStatus }
+                      : o
+                  )
+                );
+              }}
+            />
           </div>
-        ) : orders.length === 0 ? (
-          <div className="p-6 text-sm text-gray-500">
-            Belum ada order masuk 👀
-          </div>
-        ) : (
-          <div className="max-h-[65vh] overflow-y-auto divide-y">
-            {orders.map(order => (
-              <div
-                key={order.id}
-                className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition"
-              >
-                <div>
-                  <p className="font-medium">
-                    {order.serviceLabel ?? order.service}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {order.name ?? "Customer"}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {statusLabel[order.status]}
-                  </p>
-                </div>
+        ))}
+      </div>
+    )}
+  </section>
 
-                <OrderStatusSelect
-                  orderId={order.id}
-                  currentStatus={order.status}
-                  onUpdated={(newStatus) => {
-                    setOrders(prev =>
-                      prev.map(o =>
-                        o.id === order.id
-                          ? { ...o, status: newStatus }
-                          : o
-                      )
-                    );
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      </div>
     </main>
   );
 }
@@ -110,23 +118,19 @@ export default function AdminDashboard() {
 function Stat({
   title,
   value,
-  accent = "gray",
+  gradient,
 }: {
   title: string;
   value: number;
-  accent?: "gray" | "yellow" | "blue" | "green";
+  gradient: string;
 }) {
-  const accentMap: Record<string, string> = {
-    gray: "text-gray-700",
-    yellow: "text-yellow-600",
-    blue: "text-blue-600",
-    green: "text-green-600",
-  };
-
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className={`text-3xl font-bold ${accentMap[accent]}`}>
+    <div className="bg-[#151520] rounded-3xl p-6 border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
+      <p className="text-xs uppercase tracking-wider text-gray-400">
+        {title}
+      </p>
+
+      <p className={`text-4xl font-bold mt-3 bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
         {value}
       </p>
     </div>
