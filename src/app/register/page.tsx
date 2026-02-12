@@ -101,7 +101,9 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full border py-2 rounded-lg flex items-center justify-center gap-2 mb-4 disabled:opacity-60"
         >
-          <img src="/icons/google.svg" className="w-5 h-5" />
+          <img src="/icons/google.svg"
+          alt=""
+          className="w-5 h-5" />
           Register with Google
         </button>
 
