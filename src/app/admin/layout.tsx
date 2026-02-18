@@ -20,5 +20,11 @@ export default function AdminLayout({
 
   if (loading) return null;
 
-  return <>{children}</>;
+  return (
+    <section className="min-h-screen bg-[#0f0f17] text-white">
+      <div className="max-w-7xl mx-auto p-8">
+        {children}
+      </div>
+    </section>
+  );
 }
