@@ -5,11 +5,9 @@ import {
   query,
   where,
 } from "firebase/firestore";
-
 import { db } from "@/lib/firebase";
 import type { Order, OrderStatus } from "@/lib/order";
 
-// 🔥 Helper mapper (biar nggak duplikat)
 function mapDocToOrder(doc: any): Order {
   const raw = doc.data();
 
@@ -30,7 +28,6 @@ function mapDocToOrder(doc: any): Order {
   };
 }
 
-// 🔥 GET ALL ORDERS
 export async function getAllOrders(): Promise<Order[]> {
   const q = query(
     collection(db, "orders"),
@@ -38,11 +35,9 @@ export async function getAllOrders(): Promise<Order[]> {
   );
 
   const snap = await getDocs(q);
-
   return snap.docs.map(mapDocToOrder);
 }
 
-// 🔥 GET BY STATUS
 export async function getOrdersByStatus(
   status: OrderStatus
 ): Promise<Order[]> {
@@ -53,6 +48,5 @@ export async function getOrdersByStatus(
   );
 
   const snap = await getDocs(q);
-
   return snap.docs.map(mapDocToOrder);
 }
