@@ -4,6 +4,10 @@ import {
   orderBy,
   query,
   where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Order, OrderStatus } from "@/lib/order";
@@ -28,6 +32,12 @@ function mapDocToOrder(doc: any): Order {
   };
 }
 
+//
+// ========================
+// STATIC FETCH (dashboard)
+// ========================
+//
+
 export async function getAllOrders(): Promise<Order[]> {
   const q = query(
     collection(db, "orders"),
@@ -49,4 +59,42 @@ export async function getOrdersByStatus(
 
   const snap = await getDocs(q);
   return snap.docs.map(mapDocToOrder);
+}
+
+//
+// ========================
+// REALTIME LISTENER (admin page)
+// ========================
+//
+
+export function listenOrdersByStatus(
+  status: OrderStatus,
+  callback: (orders: Order[]) => void
+) {
+  const q = query(
+    collection(db, "orders"),
+    where("status", "==", status),
+    orderBy("createdAt", "desc")
+  );
+
+  return onSnapshot(q, snap => {
+    const data = snap.docs.map(mapDocToOrder);
+    callback(data);
+  });
+}
+
+//
+// ========================
+// UPDATE STATUS
+// ========================
+//
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus
+) {
+  await updateDoc(doc(db, "orders", orderId), {
+    status,
+    updatedAt: serverTimestamp(),
+  });
 }

@@ -106,7 +106,6 @@ export default function AdminDashboard() {
             Dashboard
           </h1>
 
-          {/* STATUS CARDS */}
           <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6 mb-10">
             {statuses.map(stat => (
               <Stat
@@ -119,7 +118,6 @@ export default function AdminDashboard() {
             ))}
           </section>
 
-          {/* CHART SECTION */}
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <Card title="Orders Performance (Today)">
               <ChartBar
@@ -154,8 +152,6 @@ export default function AdminDashboard() {
     </div>
   );
 }
-
-/* ---------------- COMPONENTS ---------------- */
 
 function Sidebar() {
   return (

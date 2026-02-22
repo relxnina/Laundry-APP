@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateOrderStatus } from "@/lib/updateOrderStatus";
+import { updateOrderStatus } from "@/lib/adminOrders";
 import type { OrderStatus } from "@/lib/order";
 
 const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
@@ -20,7 +20,7 @@ export function OrderStatusSelect({
 }: {
   orderId: string;
   currentStatus: OrderStatus;
-  onUpdated: (status: OrderStatus) => void;
+  onUpdated?: (status: OrderStatus) => void; // sekarang optional
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -28,16 +28,17 @@ export function OrderStatusSelect({
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const newStatus = e.target.value as OrderStatus;
-    setLoading(true);
 
-    // optimistic update
-    onUpdated(newStatus);
+    setLoading(true);
 
     try {
       await updateOrderStatus(orderId, newStatus);
+
+      // kalau parent mau handle sesuatu
+      onUpdated?.(newStatus);
+
     } catch (err) {
       alert("Gagal update status");
-      onUpdated(currentStatus); // rollback
     } finally {
       setLoading(false);
     }
