@@ -32,11 +32,9 @@ function mapDocToOrder(doc: any): Order {
   };
 }
 
-//
 // ========================
-// STATIC FETCH (dashboard)
+// GET ALL (static)
 // ========================
-//
 
 export async function getAllOrders(): Promise<Order[]> {
   const q = query(
@@ -48,24 +46,27 @@ export async function getAllOrders(): Promise<Order[]> {
   return snap.docs.map(mapDocToOrder);
 }
 
-export async function getOrdersByStatus(
-  status: OrderStatus
-): Promise<Order[]> {
+// ========================
+// REALTIME ALL
+// ========================
+
+export function listenAllOrders(
+  callback: (orders: Order[]) => void
+) {
   const q = query(
     collection(db, "orders"),
-    where("status", "==", status),
     orderBy("createdAt", "desc")
   );
 
-  const snap = await getDocs(q);
-  return snap.docs.map(mapDocToOrder);
+  return onSnapshot(q, snap => {
+    const data = snap.docs.map(mapDocToOrder);
+    callback(data);
+  });
 }
 
-//
 // ========================
-// REALTIME LISTENER (admin page)
+// BY STATUS
 // ========================
-//
 
 export function listenOrdersByStatus(
   status: OrderStatus,
@@ -83,11 +84,9 @@ export function listenOrdersByStatus(
   });
 }
 
-//
 // ========================
 // UPDATE STATUS
 // ========================
-//
 
 export async function updateOrderStatus(
   orderId: string,
@@ -96,5 +95,24 @@ export async function updateOrderStatus(
   await updateDoc(doc(db, "orders", orderId), {
     status,
     updatedAt: serverTimestamp(),
+  });
+}
+
+// ========================
+// USERS
+// ========================
+
+export function listenAllUsers(
+  callback: (users: any[]) => void
+) {
+  const q = query(collection(db, "users"));
+
+  return onSnapshot(q, snap => {
+    const data = snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    callback(data);
   });
 }
