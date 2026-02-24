@@ -118,36 +118,62 @@ export default function AdminDashboard() {
             ))}
           </section>
 
-          <section className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <Card title="Orders Performance (Today)">
-              <ChartBar
-                label="Orders Received"
-                value={todayReceived}
-                max={todayReceived + 5 || 5}
-                gradient="from-blue-400 to-cyan-400"
+            <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-10">
+              <ShortcutCard 
+                title="Manage Orders"
+                description="View and manage all orders"
+                icon="📦"
+                onClick={() => router.push("/admin/orders")}
               />
-              <ChartBar
-                label="Orders Completed"
-                value={todayCompleted}
-                max={todayReceived + 5 || 5}
-                gradient="from-green-400 to-emerald-400"
+              <ShortcutCard 
+                title="Manage Users"
+                description="View and manage all users"
+                icon="👥"
+                onClick={() => router.push("/admin/users")}
               />
-            </Card>
-
-            <Card title="Revenue Overview">
-              {revenueData.map(item => (
-                <ChartBar
-                  key={item.label}
-                  label={item.label}
-                  value={item.value}
-                  max={maxRevenue}
-                  gradient="from-purple-400 to-pink-500"
-                  formatCurrency
-                />
-              ))}
-            </Card>
-          </section>
+              <ShortcutCard 
+                title="Reports"
+                description="View system reports and analytics"
+                icon="📊"
+                onClick={() => router.push("/admin/reports")}
+              />
+              <ShortcutCard 
+                title="Settings"
+                description="Configure system settings"
+                icon="⚙️"
+                onClick={() => router.push("/admin/settings")}
+              />
+            </section>
         </main>
+      </div>
+    </div>
+  );
+}
+
+function ShortcutCard({
+  title,
+  description,
+  icon,
+  onClick,
+}: {
+  title: string;
+  description: string;
+  icon: string;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer bg-[#151520] p-6 rounded-3xl border border-white/10 hover:border-purple-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300"
+    >
+      <div className="text-2xl mb-3">{icon}</div>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-sm text-gray-400 mt-2">
+        {description}
+      </p>
+
+      <div className="mt-6 text-sm text-purple-400 font-medium">
+        Open →
       </div>
     </div>
   );
