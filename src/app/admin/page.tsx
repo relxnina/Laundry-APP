@@ -95,10 +95,7 @@ export default function AdminDashboard() {
       : 1;
 
   return (
-    <div className="min-h-screen bg-[#0b0b12] text-white flex">
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col">
+    <div className="min-h-screen bg-[#0b0b12] text-white flex flex-col">
         <Topbar />
 
         <main className="flex-1 p-8 overflow-y-auto">
@@ -146,7 +143,6 @@ export default function AdminDashboard() {
             </section>
         </main>
       </div>
-    </div>
   );
 }
 
