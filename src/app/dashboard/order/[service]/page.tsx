@@ -1,47 +1,83 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
-import { servicesConfig, ServiceType } from "@/lib/services";
+import { useState, useMemo, useEffect } from "react";
+import { getProducts } from "@/lib/admin-product";
 import { createOrder } from "@/lib/createOrder";
 
 export default function OrderServicePage() {
   const params = useParams();
   const router = useRouter();
 
-  console.log("PARAMS:", params);
-  console.log("SERVICE RAW:", params.service);
+  const serviceSlug = params.service as string;
 
-  const serviceKey = params.service as ServiceType;
-  const config = servicesConfig[serviceKey];
-
-  if (!config) {
-    return <div className="p-4 text-center">Service tidak ditemukan 🚫</div>;
-  }
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [weight, setWeight] = useState("");
-  const [duvets, setDuvets] = useState<string[]>([""]);
+  const [items, setItems] = useState<string[]>([""]);
 
+  // 🔥 FETCH PRODUCTS
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+        console.log("PRODUCTS:", data);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetch();
+  }, []);
+
+  // 🔍 FIND PRODUCT BY SLUG
+  const product = products.find(
+    (p) => p.slug === serviceSlug && p.isActive
+  );
+
+  // ⏳ STATE HANDLING
+  if (loading) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
+
+  if (!product) {
+    return (
+      <div className="p-4 text-center">
+        Service tidak ditemukan 🚫
+      </div>
+    );
+  }
+
+  // 💰 TOTAL PRICE
   const totalPrice = useMemo(() => {
-    if (config.type === "weight") {
-      return Number(weight || 0) * config.price;
+    if (product.type === "weight") {
+      return Number(weight || 0) * product.price;
     }
-    return duvets.filter((d) => d.trim() !== "").length * config.price;
-  }, [weight, duvets, config]);
 
-  const addDuvet = () => setDuvets([...duvets, ""]);
-  const updateDuvet = (i: number, value: string) => {
-    const copy = [...duvets];
+    return items.filter((i) => i.trim() !== "").length * product.price;
+  }, [weight, items, product]);
+
+  // ➕ ITEM HANDLER
+  const addItem = () => setItems([...items, ""]);
+
+  const updateItem = (i: number, value: string) => {
+    const copy = [...items];
     copy[i] = value;
-    setDuvets(copy);
-  };
-  const removeDuvet = (i: number) => {
-    setDuvets(duvets.filter((_, idx) => idx !== i));
+    setItems(copy);
   };
 
+  const removeItem = (i: number) => {
+    setItems(items.filter((_, idx) => idx !== i));
+  };
+
+  // 🚀 SUBMIT
   const handleSubmit = async () => {
     if (!name || !phone || !address) {
       alert("Lengkapi data dulu ya 👀");
@@ -49,17 +85,17 @@ export default function OrderServicePage() {
     }
 
     const payload = {
-      service: serviceKey,
-      serviceLabel: config.label,
+      service: product.slug,
+      serviceLabel: product.name,
       name,
       phone,
       address,
-      pricePerUnit: config.price,
+      pricePerUnit: product.price,
       totalPrice,
-      weight: config.type === "weight" ? Number(weight) : null,
-      duvets:
-        config.type === "duvet"
-          ? duvets.filter((d) => d.trim() !== "")
+      weight: product.type === "weight" ? Number(weight) : null,
+      items:
+        product.type === "item"
+          ? items.filter((i) => i.trim() !== "")
           : [],
     };
 
@@ -73,6 +109,7 @@ export default function OrderServicePage() {
     }
   };
 
+  // 🎨 UI
   return (
     <div className="max-w-md mx-auto p-4">
       <h2 className="text-center font-semibold text-lg mb-1">
@@ -81,7 +118,9 @@ export default function OrderServicePage() {
 
       <p className="text-center text-sm text-gray-500 mb-4">
         Layanan Dipilih:{" "}
-        <span className="font-medium text-blue-600">{config.label}</span>
+        <span className="font-medium text-blue-600">
+          {product.name}
+        </span>
       </p>
 
       <div className="space-y-3">
@@ -106,7 +145,8 @@ export default function OrderServicePage() {
           onChange={(e) => setAddress(e.target.value)}
         />
 
-        {config.type === "weight" && (
+        {/* 🔹 WEIGHT TYPE */}
+        {product.type === "weight" && (
           <>
             <input
               type="number"
@@ -118,24 +158,27 @@ export default function OrderServicePage() {
             />
 
             <div className="text-sm text-gray-600">
-              Harga: Rp {config.price.toLocaleString()} / Kg
+              Harga: Rp {product.price.toLocaleString()} / Kg
             </div>
           </>
         )}
 
-        {config.type === "duvet" && (
+        {/* 🔹 ITEM TYPE */}
+        {product.type === "item" && (
           <>
             <div className="space-y-2">
-              {duvets.map((item, i) => (
+              {items.map((item, i) => (
                 <div key={i} className="flex gap-2">
                   <input
                     className="flex-1 border rounded p-2"
-                    placeholder={`Duvet ${i + 1}`}
+                    placeholder={`Item ${i + 1}`}
                     value={item}
-                    onChange={(e) => updateDuvet(i, e.target.value)}
+                    onChange={(e) =>
+                      updateItem(i, e.target.value)
+                    }
                   />
                   <button
-                    onClick={() => removeDuvet(i)}
+                    onClick={() => removeItem(i)}
                     className="px-3 bg-red-100 text-red-600 rounded"
                   >
                     ✕
@@ -145,18 +188,19 @@ export default function OrderServicePage() {
             </div>
 
             <button
-              onClick={addDuvet}
+              onClick={addItem}
               className="text-sm text-blue-600"
             >
-              + Tambah Duvet
+              + Tambah Item
             </button>
 
             <div className="text-sm text-gray-600">
-              Harga: Rp {config.price.toLocaleString()} / item
+              Harga: Rp {product.price.toLocaleString()} / item
             </div>
           </>
         )}
 
+        {/* 💰 TOTAL */}
         <div className="bg-blue-50 p-3 rounded text-center font-semibold">
           Total Harga: Rp {totalPrice.toLocaleString()}
         </div>
