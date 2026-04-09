@@ -10,7 +10,7 @@ export default function OrderServicePage() {
   const params = useParams();
   const router = useRouter();
 
-  const serviceSlug = params.service as string;
+  const serviceSlug = params?.service as string;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,6 @@ export default function OrderServicePage() {
       try {
         const data = await getProducts();
         setProducts(data);
-        console.log("PRODUCTS:", data);
       } catch (err) {
         console.error("Failed to fetch products:", err);
       } finally {
@@ -39,10 +38,31 @@ export default function OrderServicePage() {
     fetch();
   }, []);
 
-  // 🔍 FIND PRODUCT BY SLUG
-  const product = products.find(
-    (p) => p.slug === serviceSlug && p.isActive
-  );
+  // 🔍 FIND PRODUCT (AMAN)
+  const product = useMemo(() => {
+    if (!serviceSlug || products.length === 0) return null;
+
+    return products.find(
+      (p) =>
+        p.slug.toLowerCase().trim() ===
+          serviceSlug.toLowerCase().trim() &&
+        p.isActive
+    );
+  }, [products, serviceSlug]);
+
+  // 💰 TOTAL PRICE (HARUS DI ATAS)
+  const totalPrice = useMemo(() => {
+    if (!product) return 0;
+
+    if (product.type === "weight") {
+      return Number(weight || 0) * product.price;
+    }
+
+    return (
+      items.filter((i) => i.trim() !== "").length *
+      product.price
+    );
+  }, [weight, items, product]);
 
   // ⏳ STATE HANDLING
   if (loading) {
@@ -56,15 +76,6 @@ export default function OrderServicePage() {
       </div>
     );
   }
-
-  // 💰 TOTAL PRICE
-  const totalPrice = useMemo(() => {
-    if (product.type === "weight") {
-      return Number(weight || 0) * product.price;
-    }
-
-    return items.filter((i) => i.trim() !== "").length * product.price;
-  }, [weight, items, product]);
 
   // ➕ ITEM HANDLER
   const addItem = () => setItems([...items, ""]);
@@ -81,62 +92,64 @@ export default function OrderServicePage() {
 
   // 🚀 SUBMIT
   const handleSubmit = async () => {
+    if (submitting) return;
+
+    if (!name || !phone || !address) {
+      alert("Lengkapi data dulu ya 👀");
+      return;
+    }
+
     if (product.type === "weight" && !weight) {
-  alert("Isi berat dulu bro");
-  return;
-}
+      alert("Isi berat dulu bro");
+      return;
+    }
 
-  if (product.type === "item" && items.length === 0) {
-  alert("Tambahin minimal 1 item");
-  return;
-}
+    if (
+      product.type === "item" &&
+      items.filter((i) => i.trim() !== "").length === 0
+    ) {
+      alert("Tambahin minimal 1 item");
+      return;
+    }
 
-  const payload = {
-    productId: product.id,
-    productName: product.name,
-    type: product.type,
+    const payload = {
+      productId: product.id,
+      productName: product.name,
+      type: product.type,
 
-    customer: {
-      name,
-      phone,
-      address,
-    },
+      customer: {
+        name,
+        phone,
+        address,
+      },
 
-    orderDetail: {
-      weight: product.type === "weight" ? Number(weight) : null,
-      items:
-        product.type === "item"
-          ? items.filter((i) => i.trim() !== "")
-          : [],
-    },
+      orderDetail: {
+        weight:
+          product.type === "weight"
+            ? Number(weight)
+            : null,
+        items:
+          product.type === "item"
+            ? items.filter((i) => i.trim() !== "")
+            : [],
+      },
 
-    pricing: {
-      pricePerUnit: product.price,
-      total: totalPrice,
-    },
-  };
-
-  const handleSubmit = async () => {
-  if (submitting) return;
-
-  setSubmitting(true);
-  try {
-    await createOrder(payload);
-    router.push("/dashboard");
-  } catch (err) {
-    alert("Gagal");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      pricing: {
+        pricePerUnit: product.price,
+        total: totalPrice,
+      },
+    };
 
     try {
+      setSubmitting(true);
       await createOrder(payload);
       alert("Pesanan berhasil 🎉");
-      router.push("/dashboard");
+      router.push("/dashboard/history");
     } catch (err) {
       console.error(err);
       alert("Gagal membuat pesanan 😵");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -176,7 +189,7 @@ export default function OrderServicePage() {
           onChange={(e) => setAddress(e.target.value)}
         />
 
-        {/* 🔹 WEIGHT TYPE */}
+        {/* 🔹 WEIGHT */}
         {product.type === "weight" && (
           <>
             <input
@@ -194,7 +207,7 @@ export default function OrderServicePage() {
           </>
         )}
 
-        {/* 🔹 ITEM TYPE */}
+        {/* 🔹 ITEM */}
         {product.type === "item" && (
           <>
             <div className="space-y-2">
@@ -238,9 +251,10 @@ export default function OrderServicePage() {
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-blue-500 text-white py-2 rounded mt-2"
+          disabled={submitting}
+          className="w-full bg-blue-500 text-white py-2 rounded mt-2 disabled:opacity-50"
         >
-          Pesan Sekarang
+          {submitting ? "Memproses..." : "Pesan Sekarang"}
         </button>
       </div>
     </div>
