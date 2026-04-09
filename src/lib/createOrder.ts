@@ -14,5 +14,6 @@ export async function createOrder(data: any) {
     userId: user.uid,
     status: "pending",
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 }

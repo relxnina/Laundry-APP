@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import { getProducts } from "@/lib/admin-product";
 import { createOrder } from "@/lib/createOrder";
+import { Product } from "@/types/product";
 
 export default function OrderServicePage() {
   const params = useParams();
@@ -11,7 +12,7 @@ export default function OrderServicePage() {
 
   const serviceSlug = params.service as string;
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ export default function OrderServicePage() {
   const [address, setAddress] = useState("");
   const [weight, setWeight] = useState("");
   const [items, setItems] = useState<string[]>([""]);
+  const [submitting, setSubmitting] = useState(false);
 
   // 🔥 FETCH PRODUCTS
   useEffect(() => {
@@ -79,25 +81,54 @@ export default function OrderServicePage() {
 
   // 🚀 SUBMIT
   const handleSubmit = async () => {
-    if (!name || !phone || !address) {
-      alert("Lengkapi data dulu ya 👀");
-      return;
-    }
+    if (product.type === "weight" && !weight) {
+  alert("Isi berat dulu bro");
+  return;
+}
 
-    const payload = {
-      service: product.slug,
-      serviceLabel: product.name,
+  if (product.type === "item" && items.length === 0) {
+  alert("Tambahin minimal 1 item");
+  return;
+}
+
+  const payload = {
+    productId: product.id,
+    productName: product.name,
+    type: product.type,
+
+    customer: {
       name,
       phone,
       address,
-      pricePerUnit: product.price,
-      totalPrice,
+    },
+
+    orderDetail: {
       weight: product.type === "weight" ? Number(weight) : null,
       items:
         product.type === "item"
           ? items.filter((i) => i.trim() !== "")
           : [],
-    };
+    },
+
+    pricing: {
+      pricePerUnit: product.price,
+      total: totalPrice,
+    },
+  };
+
+  const handleSubmit = async () => {
+  if (submitting) return;
+
+  setSubmitting(true);
+  try {
+    await createOrder(payload);
+    router.push("/dashboard");
+  } catch (err) {
+    alert("Gagal");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
     try {
       await createOrder(payload);
